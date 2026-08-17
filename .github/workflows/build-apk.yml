@@ -18,29 +18,41 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            git zip unzip \
-            autoconf automake libtool \
-            pkg-config zlib1g-dev \
-            libncurses5-dev libncursesw5-dev \
-            cmake libffi-dev libssl-dev
+            build-essential \
+            git \
+            zip \
+            unzip \
+            openjdk-17-jdk \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            ccache \
+            libffi-dev
 
-      - name: Install Python tools
+      - name: Install Python dependencies
         run: |
           python3 -m pip install --upgrade pip
-          python3 -m pip install "cython<3.0" "buildozer==1.5.0"
+          python3 -m pip install --upgrade buildozer cython
+
+      - name: Clean old Buildozer files
+        run: |
+          rm -rf .buildozer
+          rm -rf bin
 
       - name: Build APK
         run: |
-          yes | buildozer android debug
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: cloth-shop-apk
           path: bin/*.apk
+          if-no-files-found: error
